@@ -19,86 +19,86 @@ Todas as tabelas possuem IDs automáticos (SERIAL) como chave primária. Os camp
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
-- FastAPI
-- Uvicorn
-- PostgreSQL
-- psycopg2-binary
-- Pydantic
-- bcrypt (hash seguro de senhas)
-- python-dotenv (carregamento automático do .env)
+
+
+
+
+# ⚽ Arena Pinheiro - Backend
+
+Sistema web para gerenciar campos, reservas, comandas, produtos, estoque, compras, pagamentos e usuários da Arena Pinheiro.
+
+## 📝 Descrição
+API desenvolvida em Python com FastAPI e PostgreSQL. Permite o cadastro, consulta, atualização e remoção de todas as entidades do sistema. IDs são automáticos, senhas são salvas com hash seguro e campos string são validados para evitar SQL injection.
+
+## ✨ Funcionalidades
+- CRUD completo para campos, reservas, comandas, produtos, estoque, compras, pagamentos e usuários
+- IDs automáticos (não precisa informar ao cadastrar)
+- Senhas de usuários com hash seguro (bcrypt)
+- Validação de campos string para evitar SQL injection
+- Documentação automática (Swagger/OpenAPI)
+- CORS configurado
+
+
+## ⚙️ Pré-requisitos e Dependências
+
+<img src="https://img.shields.io/badge/Python-3.8%2B-blue?logo=python" />
+<img src="https://img.shields.io/badge/PostgreSQL-12%2B-blue?logo=postgresql" />
+
 - Python 3.8+
+- PostgreSQL 12+
+- FastAPI 🏎️
+- Uvicorn 🚦
+- psycopg2-binary 🐘
+- Pydantic 🛡️
+- bcrypt 🔒
+- python-dotenv 🌱
 
----
-
-## 📦 Pré-requisitos
-- Python 3.8 ou superior
-- PostgreSQL 12 ou superior
-- pip
-
----
-
-## 🚀 Instalação
-
-1. Clone o projeto ou extraia o ZIP
-2. Crie um ambiente virtual:
-   ```bash
-   python -m venv venv
-   venv\Scripts\activate  # Windows
-   source venv/bin/activate  # Linux/macOS
-   ```
-3. Instale as dependências:
-   ```bash
-   pip install -r backend/requirements.txt
-   pip install python-dotenv
-   ```
-4. Configure o banco de dados PostgreSQL:
-    - Crie o banco:
-       ```sql
-       CREATE DATABASE arena_pinheiro;
-       ```
-    - Importe o script de tabelas (IDs automáticos, campos validados):
-       ```bash
-       psql -U postgres -d arena_pinheiro -f backend/Arena_Pinheiro.sql
-       ```
-5. Crie o arquivo `.env` na raiz do projeto:
-   ```env
-   DB_HOST=localhost
-   DB_PORT=5432
-   DB_NAME=arena_pinheiro
-   DB_USER=postgres
-   DB_PASSWORD=sua_senha
-   API_HOST=0.0.0.0
-   API_PORT=8000
-   ```
-
----
-
-## ⚙️ Configuração
-- O backend carrega automaticamente as variáveis do `.env` usando python-dotenv.
-- IDs de todas as entidades são gerados automaticamente pelo banco (SERIAL/IDENTITY). Não é necessário informar IDs ao cadastrar.
-- Senhas são armazenadas com hash seguro (bcrypt). Os campos nome e senha de usuário aceitam até 255 caracteres.
-- Todos os campos string relevantes são validados para evitar SQL injection e entradas maliciosas.
-
----
-
-
-## 🎯 Como Executar
-
-Execute o backend a partir da raiz do projeto:
+Instale todas as dependências com:
 ```bash
-uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
+python -m venv venv
+venv\Scripts\activate  # Windows
+pip install -r backend/requirements.txt
+pip install python-dotenv
 ```
 
-Acesse:
-- http://localhost:8000/docs — Documentação Swagger
-- http://localhost:8000 — Mensagem de boas-vindas
+## 🗄️ Configuração do Banco de Dados
+1. Crie o banco:
+   ```sql
+   CREATE DATABASE arena_pinheiro;
+   ```
+2. Importe as tabelas:
+   ```bash
+   psql -U postgres -d arena_pinheiro -f backend/Arena_Pinheiro.sql
+   ```
 
----
-
-## Estrutura do Projeto
+## ⚙️ Configuração do Ambiente
+Crie um arquivo `.env` na raiz do projeto com:
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=arena_pinheiro
+DB_USER=postgres
+DB_PASSWORD=sua_senha
+API_HOST=0.0.0.0
+API_PORT=8000
 ```
-Pinheiro-Arena/
+
+
+## ▶️ Como Executar
+
+Execute o backend com:
+```bash
+python backend/run.py
+```
+A API estará disponível em http://localhost:8000
+
+## 📚 Documentação
+Acesse a documentação interativa em:
+- http://localhost:8000/docs
+
+## 📁 Estrutura do Projeto
+```
+Arena-Pinheiro/
 ├── backend/
 │   ├── main.py
 │   ├── config.py
@@ -112,56 +112,14 @@ Pinheiro-Arena/
 ├── README.md
 ```
 
----
-
-## 📚 Documentação da API
-- Swagger UI: http://localhost:8000/docs
-- Todos os endpoints podem ser testados diretamente na interface.
-
----
-
-## ✨ Funcionalidades
-- CRUD completo para todas as entidades
-- IDs automáticos (não informar ao cadastrar)
-- Validação automática de dados (Pydantic)
-- Validação de campos string para evitar SQL injection
-- Documentação automática (Swagger/OpenAPI)
-- CORS configurado
-- Health check endpoint
-- Senhas de usuários com hash seguro (bcrypt)
+## 💡 Dicas e Observações
+- Não informe IDs ao cadastrar entidades (o banco gera automaticamente)
+- Se der erro de conexão, confira o `.env` e se o PostgreSQL está rodando
+- Campos nome e senha de usuário aceitam até 255 caracteres
+- Para dúvidas, acesse a documentação em `/docs`
 
 ---
 
+Desenvolvido com FastAPI, PostgreSQL e Python 3.8+.
 
-## 🐛 Solução de Problemas
-
-- **Erro de conexão:** Verifique se o PostgreSQL está rodando e se o `.env` está correto.
-- **Erro de autenticação:** Verifique usuário/senha no `.env`.
-- **Erro de tabelas:** Execute novamente o script SQL.
-- **Erro de encoding:** O backend já está configurado para UTF-8.
-- **Porta ocupada:** Altere a porta no comando uvicorn e no `.env`.
-- **Erro de valor muito longo:** Os campos nome e senha de usuário aceitam até 255 caracteres.
-
----
-
-
-## 📝 Notas Importantes
-- Não é necessário informar IDs ao cadastrar entidades.
-- O arquivo `.env` não deve ser versionado (já está no .gitignore).
-- Use o modo `--reload` apenas em desenvolvimento.
-- Para produção, implemente autenticação JWT, HTTPS, logs e validação extra.
-- Sempre valide entradas do usuário para evitar SQL injection e outros ataques.
-
----
-
-## 👨‍💻 Desenvolvido com
-- FastAPI
-- PostgreSQL
-- Python 3.8+
-- HTML5/CSS3/JavaScript
-- Pydantic
-- Uvicorn
-
----
-
-**Para dúvidas, consulte http://localhost:8000/docs quando a API estiver rodando.**
+│   ├── database.py
