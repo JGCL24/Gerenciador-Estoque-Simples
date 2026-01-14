@@ -228,13 +228,3 @@ async def remover_item_compra(id_compra: int, id_produto: int):
         return None
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao remover item: {str(e)}")
-
-@router.get("/detalhadas", response_model=List[dict])
-async def listar_compras_detalhadas():
-    """Lista compras com detalhes de produtos e clientes via view"""
-    try:
-        query = "SELECT * FROM view_compras_detalhadas"
-        result = db.execute_query(query)
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro ao listar compras detalhadas: {str(e)}")

@@ -18,8 +18,7 @@ class Config:
             "port": self.DB_PORT,
             "database": self.DB_NAME,
             "user": self.DB_USER,
-            "password": self.DB_PASSWORD,
-            "charset": "utf8"
+            "password": self.DB_PASSWORD
         }
 
 config = Config()

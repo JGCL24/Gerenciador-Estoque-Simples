@@ -173,13 +173,3 @@ async def obter_movimentacao(id_movimenta: int):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao obter movimentação: {str(e)}")
-
-@router.get("/atual", response_model=List[dict])
-async def listar_estoque_atual():
-    """Lista estoque atual com detalhes de produtos via view"""
-    try:
-        query = "SELECT * FROM view_estoque_atual"
-        result = db.execute_query(query)
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro ao listar estoque atual: {str(e)}")

@@ -1,6 +1,7 @@
 
 BEGIN;
 
+
 CREATE TABLE cliente
 (
     id_cliente SERIAL PRIMARY KEY,
@@ -361,81 +362,5 @@ ALTER TABLE movimenta
     ON UPDATE NO ACTION
     ON DELETE NO ACTION
     NOT VALID;
-
-CREATE VIEW view_comandas_detalhadas AS
-SELECT 
-    c.id_comanda,
-    c.data,
-    c.status,
-    c.numero_mesa,
-    cl.nome AS nome_cliente,
-    p.nome AS nome_produto,
-    ic.quantidade,
-    ic.preco_unitario
-FROM comanda c
-LEFT JOIN cliente cl ON c.cpf_cliente = cl.cpf
-LEFT JOIN item_comanda ic ON c.id_comanda = ic.id_comanda
-LEFT JOIN produto p ON ic.id_produto = p.id_produto;
-
-CREATE VIEW view_reservas_detalhadas AS
-SELECT 
-    r.id_reserva,
-    r.data,
-    r.quant_horas,
-    r.status,
-    cl.nome AS nome_cliente,
-    c.numero AS numero_campo,
-    u.nome AS usuario_cadastrou
-FROM reserva r
-LEFT JOIN cliente cl ON r.cpf_cliente = cl.cpf
-LEFT JOIN campo c ON r.id_campo = c.id_campo
-LEFT JOIN usuario u ON r.id_usuario_cadastrou = u.id_usuario;
-
-CREATE VIEW view_compras_detalhadas AS
-SELECT 
-    comp.id_compra,
-    comp.data,
-    comp.valor_total,
-    cl.nome AS nome_cliente,
-    p.nome AS nome_produto,
-    ic.quantidade,
-    ic.preco_unitario,
-    u.nome AS usuario_cadastrou
-FROM compra comp
-LEFT JOIN cliente cl ON comp.cpf_cliente = cl.cpf
-LEFT JOIN item_compra ic ON comp.id_compra = ic.id_compra
-LEFT JOIN produto p ON ic.id_produto = p.id_produto
-LEFT JOIN usuario u ON comp.id_usuario_cadastrou = u.id_usuario;
-
-CREATE VIEW view_estoque_atual AS
-SELECT 
-    p.id_produto,
-    p.nome,
-    p.preco,
-    p.validade,
-    p.quant_min_estoque,
-    e.quant_present,
-    (e.quant_present - p.quant_min_estoque) AS diferenca_minimo
-FROM produto p
-LEFT JOIN estoque e ON p.id_produto = e.id_produto;
-
-CREATE VIEW view_pagamentos_detalhados AS
-SELECT 
-    pag.id_pagamento,
-    pag.valor,
-    pag.forma,
-    pag.tipo_pagamento,
-    u.nome AS usuario_cadastrou,
-    CASE 
-        WHEN pc.id_compra IS NOT NULL THEN 'Compra'
-        WHEN pr.id_reserva IS NOT NULL THEN 'Reserva'
-        WHEN pcom.id_comanda IS NOT NULL THEN 'Comanda'
-        ELSE 'Outro'
-    END AS origem
-FROM pagamento pag
-LEFT JOIN usuario u ON pag.id_usuario_cadastrou = u.id_usuario
-LEFT JOIN pag_compra pc ON pag.id_pagamento = pc.id_pagamento
-LEFT JOIN pag_reserva pr ON pag.id_pagamento = pr.id_pagamento
-LEFT JOIN pag_comanda pcom ON pag.id_pagamento = pcom.id_pagamento;
 
 END;

@@ -125,13 +125,3 @@ async def deletar_reserva(id_reserva: int):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao deletar reserva: {str(e)}")
-
-@router.get("/detalhadas", response_model=List[dict])
-async def listar_reservas_detalhadas():
-    """Lista reservas com detalhes de clientes, campos e usuários via view"""
-    try:
-        query = "SELECT * FROM view_reservas_detalhadas"
-        result = db.execute_query(query)
-        return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro ao listar reservas detalhadas: {str(e)}")
