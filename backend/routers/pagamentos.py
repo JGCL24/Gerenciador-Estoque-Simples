@@ -227,3 +227,13 @@ async def criar_pagamento_compra(pag_compra: PagCompraCreate):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao criar pagamento de compra: {str(e)}")
+
+@router.get("/detalhados", response_model=List[dict])
+async def listar_pagamentos_detalhados():
+    """Lista pagamentos com detalhes de origem via view"""
+    try:
+        query = "SELECT * FROM view_pagamentos_detalhados"
+        result = db.execute_query(query)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao listar pagamentos detalhados: {str(e)}")
