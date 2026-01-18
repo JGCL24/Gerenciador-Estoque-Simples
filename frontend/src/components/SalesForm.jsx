@@ -56,7 +56,7 @@ export default function SalesForm({ products, initialProduct, onSubmit, onCancel
   return (
     <form onSubmit={submit} className="product-form" aria-label="formulário de venda">
       {lines.map((line,idx)=> (
-        <div key={idx} style={{display:'flex', gap:8, alignItems:'flex-end', marginBottom:8}}>
+        <div key={idx} style={{display:'flex', gap:8, alignItems:'center', marginBottom:8}}>
           <div style={{flex:1}}>
             <label>Produto
               <select ref={idx===0?ref:null} value={line.product_id ?? ''} onChange={(e)=>updateLine(idx, { product_id: e.target.value })}>
@@ -78,8 +78,18 @@ export default function SalesForm({ products, initialProduct, onSubmit, onCancel
             </label>
           </div>
 
-          <div style={{width:38}}>
-            {lines.length > 1 && <button type="button" className="secondary" onClick={()=>removeLine(idx)} aria-label="Remover linha">✕</button>}
+          <div style={{width:42, display:'flex', justifyContent:'center'}}>
+            {lines.length > 1 && (
+              <button
+                type="button"
+                className="remove-line-btn"
+                onClick={()=>removeLine(idx)}
+                aria-label="Remover linha"
+                title="Remover linha"
+              >
+                ✕
+              </button>
+            )}
           </div>
         </div>
       ))}

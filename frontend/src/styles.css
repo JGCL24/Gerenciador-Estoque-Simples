@@ -88,6 +88,7 @@ body{
 .product-form small.muted{ color:var(--muted); font-size:12px; display:block; margin-top:4px }
 .product-form button{ background:var(--primary); color:#fff; border:0; padding:11px 14px; border-radius:10px; cursor:pointer; box-shadow:0 8px 20px rgba(15,23,42,0.15) }
 .product-form .secondary{ background:#fff; border:1px solid #e6eef5; color:var(--muted); box-shadow:none }
+.product-form .remove-line-btn{ background:#ff3d50; border:1px solid #ff3d50; color:#fff; }
 
 button, .btn{ font-weight:600; border-radius:12px; border:1px solid transparent; transition: all .12s ease; padding:10px 14px; }
 button:hover, .btn:hover{ transform:translateY(-1px) }
@@ -107,6 +108,11 @@ button:hover, .btn:hover{ transform:translateY(-1px) }
 .sales-button:hover, .btn-sale:hover{ background:var(--sale-dark); box-shadow:0 12px 24px rgba(249,115,22,0.25) }
 
 .btn-danger{ background:var(--danger); color:#fff; border:1px solid var(--danger); padding:8px 11px; border-radius:10px; cursor:pointer; box-shadow:0 10px 20px rgba(239,68,68,0.18) }
+.remove-line-btn{ width:36px; height:36px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:10px; background:#ff3d50; color:#fff; border:1px solid #ff3d50; box-shadow:0 10px 18px rgba(255, 30, 53, 0.321); cursor:pointer; transition:transform .12s ease, box-shadow .12s ease }
+.remove-line-btn:hover{ transform:translateY(-1px); box-shadow:0 12px 22px rgba(255, 39, 61, 0.171) }
+.remove-line-btn{ width:36px; height:36px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:10px; background:var(--danger); color:#fff; border:1px solid var(--danger); box-shadow:0 10px 20px rgba(239,68,68,0.18); cursor:pointer; transition:transform .12s ease, box-shadow .12s ease }
+.remove-line-btn:hover{ transform:translateY(-1px); box-shadow:0 12px 22px rgba(239,68,68,0.24) }
+.remove-line-btn:active{ transform:translateY(0) }
 
 .footer-note{ margin-top:10px; color:var(--muted); font-size:12px; text-align:center }
 
