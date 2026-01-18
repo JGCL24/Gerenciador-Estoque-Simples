@@ -1,7 +1,5 @@
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
-// ==================== API de Produtos ====================
-
 export async function fetchProducts(){
   const res = await fetch(`${API_BASE}/products`)
   return res.json()
@@ -26,8 +24,6 @@ export async function updateProduct(id, payload){
 export async function deleteProduct(id){
   return fetch(`${API_BASE}/products/${id}`, { method: 'DELETE' })
 }
-
-// ==================== API de Movimentações ====================
 
 export async function fetchMovements(){
   const res = await fetch(`${API_BASE}/movements`)

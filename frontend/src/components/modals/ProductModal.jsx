@@ -8,7 +8,7 @@ export default function ProductModal({ open, product, onClose, onCreate, onUpdat
     <Modal id="product-modal" onClose={onClose}>
       <div className="modal-header">
         <h3 id="product-modal-title">{product ? 'Editar produto' : 'Cadastrar produto'}</h3>
-        <button className="close-btn" onClick={onClose}>Fechar</button>
+        <button className="close-btn" onClick={onClose} aria-label="Fechar">×</button>
       </div>
       <ProductForm initial={product} onSubmit={product ? (data)=>onUpdate(product.id, data) : onCreate} onCancel={onClose} />
     </Modal>

@@ -8,7 +8,7 @@ export default function SaleModal({ open, products, initialProduct, onClose, onS
     <Modal id="sale-modal" onClose={onClose}>
       <div className="modal-header">
         <h3 id="sale-modal-title">Registrar Venda</h3>
-        <button className="close-btn" onClick={onClose}>Fechar</button>
+        <button className="close-btn" onClick={onClose} aria-label="Fechar">×</button>
       </div>
       <SalesForm products={products} initialProduct={initialProduct} onSubmit={onSubmit} onCancel={onClose} />
     </Modal>

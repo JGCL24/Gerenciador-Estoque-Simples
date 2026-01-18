@@ -9,7 +9,6 @@ export default function ProductForm({ initial, onSubmit, onCancel }){
     if (initial) setForm({ name: initial.name, description: initial.description || '', price: initial.price, quantity: initial.quantity, min_quantity: initial.min_quantity ?? 0 })
     else setForm({ name: '', description:'', price:0, quantity:0, min_quantity:0 })
 
-    // focus the first input when the form mounts (useful inside a modal)
     setTimeout(()=>{ try{ nameRef.current && nameRef.current.focus(); nameRef.current && nameRef.current.select(); } catch(e){} }, 0)
   }, [initial])
 
@@ -22,7 +21,6 @@ export default function ProductForm({ initial, onSubmit, onCancel }){
   const submit = async (e)=>{
     e.preventDefault()
     if (Number(form.price) < 0) return
-    // normalize number fields
     const payload = {...form, price: Number(form.price || 0), quantity: Number(form.quantity || 0), min_quantity: Number(form.min_quantity || 0)}
     try{
       setSubmitting(true)

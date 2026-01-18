@@ -8,7 +8,7 @@ export default function QuickAddModal({ open, product, onClose, onSubmit }){
     <Modal id="quick-add-modal" onClose={onClose}>
       <div className="modal-header">
         <h3 id="quick-add-modal-title">Adicionar Produto</h3>
-        <button className="close-btn" onClick={onClose}>Fechar</button>
+        <button className="close-btn" onClick={onClose} aria-label="Fechar">×</button>
       </div>
       <QuickAddForm initialProduct={product} onSubmit={onSubmit} onCancel={onClose} />
     </Modal>

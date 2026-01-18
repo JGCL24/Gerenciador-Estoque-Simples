@@ -8,7 +8,7 @@ export default function MovementModal({ open, product, onClose, onSubmit }){
     <Modal id="movement-modal" onClose={onClose}>
       <div className="modal-header">
         <h3 id="movement-modal-title">Registrar movimentação</h3>
-        <button className="close-btn" onClick={onClose}>Fechar</button>
+        <button className="close-btn" onClick={onClose} aria-label="Fechar">×</button>
       </div>
       <MovementForm initialProduct={product} onSubmit={onSubmit} onCancel={onClose} />
     </Modal>

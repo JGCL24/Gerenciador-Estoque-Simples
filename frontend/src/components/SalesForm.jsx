@@ -6,7 +6,6 @@ export default function SalesForm({ products, initialProduct, onSubmit, onCancel
   const ref = useRef(null)
 
   useEffect(()=>{
-    // If an initial product exists, preselect it; otherwise keep placeholder
     setLines([{ product_id: initialProduct?.id ?? '', quantity: 1 }])
     setError('')
     setTimeout(()=>{ try{ ref.current && ref.current.focus() }catch(e){} }, 0)

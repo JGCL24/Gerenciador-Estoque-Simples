@@ -1,8 +1,3 @@
-"""Run helper for development: starts the FastAPI app with Uvicorn using default host/port.
-
-Prints the local URLs for the app and Swagger docs when starting (useful on Windows).
-"""
-
 if __name__ == "__main__":
     import os
     import sys

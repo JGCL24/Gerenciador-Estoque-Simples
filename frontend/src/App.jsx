@@ -11,25 +11,19 @@ import ModalsContainer from './components/ModalsContainer'
 export default function App(){
   const [products, setProducts] = useState([])
   const [query, setQuery] = useState('')
-  const [gridView, setGridView] = useState(true)
-  // modal state
   const [modalOpen, setModalOpen] = useState(false)
   const [modalProduct, setModalProduct] = useState(null)
 
-  // movements
   const [movements, setMovements] = useState([])
   const [movementOpen, setMovementOpen] = useState(false)
   const [movementProduct, setMovementProduct] = useState(null)
 
-  // sales
   const [saleOpen, setSaleOpen] = useState(false)
   const [saleProduct, setSaleProduct] = useState(null)
 
-  // quick add (add stock) modal
   const [quickAddOpen, setQuickAddOpen] = useState(false)
   const [quickAddProduct, setQuickAddProduct] = useState(null)
 
-  // movement details modal
   const [movementDetailsOpen, setMovementDetailsOpen] = useState(false)
   const [selectedMovement, setSelectedMovement] = useState(null)
 
@@ -38,16 +32,46 @@ export default function App(){
     setProducts(data)
   }
 
-  useEffect(()=>{ load(); loadMovements() }, [])
+  useEffect(()=>{
+    const cached = loadMovementsCache()
+    if (cached.length) setMovements(cached)
+    load(); loadMovements()
+  }, [])
 
   const loadMovements = async ()=>{
     try{
       const m = await fetchMovements()
-      setMovements(m)
+      const cached = loadMovementsCache()
+      const merged = mergeMovements(m, cached)
+      setMovements(merged)
+      saveMovementsCache(merged)
     }catch(err){ console.error(err) }
   }
 
-  // sales modal
+  const loadMovementsCache = ()=>{
+    try{
+      const raw = localStorage.getItem('movements_cache')
+      const parsed = raw ? JSON.parse(raw) : []
+      return Array.isArray(parsed) ? parsed : []
+    }catch(e){
+      return []
+    }
+  }
+
+  const saveMovementsCache = (data)=>{
+    try{
+      localStorage.setItem('movements_cache', JSON.stringify(data))
+    }catch(e){}
+  }
+
+  const mergeMovements = (primary = [], secondary = [])=>{
+    const map = new Map()
+    for (const item of [...primary, ...secondary]){
+      if (item && item.id != null) map.set(String(item.id), item)
+    }
+    return Array.from(map.values()).sort((a,b)=> new Date(b.timestamp) - new Date(a.timestamp))
+  }
+
   const openSaleModal = (product)=>{
     setSaleProduct(product || null)
     setSaleOpen(true)
@@ -56,17 +80,13 @@ export default function App(){
 
   const onCreateSale = async (payload)=>{
     try{
-      // payload: { items: [{product_id, quantity, unit_price, subtotal}], total }
       const { items, total } = payload
-
-      // validate available stock for all items
       for(const it of items){
         const prod = products.find(p=>p.id === it.product_id)
         if (!prod) throw new Error(`Produto não encontrado: ${it.product_id}`)
         if (prod.quantity < it.quantity) throw new Error(`Estoque insuficiente para ${prod.name}: tem ${prod.quantity}, pediu ${it.quantity}`)
       }
 
-      // create movements sequentially
       for(const it of items){
         const note = `Venda: ${it.quantity} x R$ ${it.unit_price.toFixed(2)} = R$ ${it.subtotal.toFixed(2)} — Total: R$ ${total.toFixed(2)}`
         await createMovement({ product_id: it.product_id, type: 'saida', quantity: it.quantity, note })
@@ -81,7 +101,6 @@ export default function App(){
     }
   }
 
-  // quick add: add stock modal (entrada only)
   const openQuickAddModal = (product)=>{
     setQuickAddProduct(product)
     setQuickAddOpen(true)
@@ -90,7 +109,6 @@ export default function App(){
 
   const onCreateQuickAdd = async (payload)=>{
     try{
-      // payload: { product_id, type: 'entrada', quantity, note }
       await createMovement(payload)
       await load()
       await loadMovements()
@@ -101,7 +119,6 @@ export default function App(){
     }
   }
 
-  // movement details modal
   const openMovementDetailsModal = (movement)=>{
     setSelectedMovement(movement)
     setMovementDetailsOpen(true)
@@ -126,7 +143,6 @@ export default function App(){
     setModalProduct(null)
   }
 
-  // movements modal
   const openMovementModal = (product)=>{
     setMovementProduct(product)
     setMovementOpen(true)
@@ -153,6 +169,7 @@ export default function App(){
     try{
       await createProduct(payload)
       load()
+      loadMovements()
       closeModal()
     }catch(err){
       console.error(err)
@@ -175,6 +192,7 @@ export default function App(){
     if (!confirm('Deseja excluir esse produto?')) return
     await deleteProduct(id)
     load()
+    loadMovements()
   }
 
   const filtered = products.filter(p => {
@@ -187,9 +205,7 @@ export default function App(){
 
   const totalItems = products.reduce((s,p)=>s+p.quantity,0)
   const totalValue = products.reduce((s,p)=>s + (p.quantity * p.price),0)
-  // only consider products with a positive configured minimum as candidates for alerts
   const lowStock = products.filter(p => (p.min_quantity ?? 0) > 0 && p.quantity < p.min_quantity)
-  const missingMin = products.filter(p => (p.min_quantity ?? 0) <= 0)
 
   return (
     <div className="container">
@@ -206,7 +222,7 @@ export default function App(){
         <div className="card main-card">
           <Summary products={products} totalItems={totalItems} totalValue={totalValue} />
 
-          <ProductList filtered={filtered} gridView={gridView} setGridView={setGridView} onEdit={openEditModal} onDelete={onDelete} />
+          <ProductList filtered={filtered} onEdit={openEditModal} onDelete={onDelete} />
 
         </div>
 
