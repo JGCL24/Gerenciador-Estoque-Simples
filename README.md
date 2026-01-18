@@ -1,663 +1,616 @@
-# 🏟️ Arena Pinheiro - Sistema de Gestão
+# 🧾 Gerenciador de Estoque
 
-Sistema completo de gerenciamento para Arena Pinheiro, desenvolvido com FastAPI (backend) e HTML/CSS/JavaScript (frontend). O sistema gerencia campos, reservas, comandas, produtos, estoque, compras, pagamentos e muito mais.
+Um sistema completo de gestão de estoque com **backend robusto em FastAPI** e **interface moderna em React**.
+
+**Stack:** FastAPI + SQLModel + SQLite | React + Vite | GitHub Actions CI/CD
+
+---
 
 ## 📋 Índice
 
-- [Tecnologias Utilizadas](#-tecnologias-utilizadas)
-- [Pré-requisitos](#-pré-requisitos)
-- [Instalação](#-instalação)
-- [Configuração](#-configuração)
-- [Como Executar](#-como-executar)
-- [Estrutura do Projeto](#-estrutura-do-projeto)
-- [Documentação da API](#-documentação-da-api)
-- [Funcionalidades](#-funcionalidades)
-- [Solução de Problemas](#-solução-de-problemas)
+1. [Visão Geral](#-visão-geral)
+2. [Arquitetura do Projeto](#-arquitetura-do-projeto)
+3. [Pré-requisitos](#-pré-requisitos)
+4. [Instalação e Setup](#-instalação-e-setup)
+5. [Como Executar](#-como-executar)
+6. [API REST Endpoints](#-api-rest-endpoints)
+7. [Testes Automatizados](#-testes-automatizados)
+8. [Pipeline CI/CD](#-pipeline-cicd)
+9. [Estrutura de Arquivos](#-estrutura-de-arquivos)
+10. [Funcionalidades Principais](#-funcionalidades-principais)
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
+## 🎯 Visão Geral
 
-### Backend
+**Gerenciador de Estoque** é uma solução de código aberto para gerenciar inventário de produtos com rastreamento completo de movimentações (entradas e saídas).
 
-- **FastAPI** (v0.104.1) - Framework web moderno e rápido para construção de APIs REST em Python
-  - Alta performance
-  - Validação automática de dados com Pydantic
-  - Documentação automática (Swagger/OpenAPI)
-  - Suporte nativo a async/await
-
-- **Uvicorn** (v0.24.0) - Servidor ASGI de alta performance
-  - Suporte a WebSockets
-  - Reload automático em desenvolvimento
-  - Processamento assíncrono
-
-- **PostgreSQL** - Banco de dados relacional
-  - Robustez e confiabilidade
-  - Suporte a transações ACID
-  - Queries SQL diretas (sem ORM)
-
-- **psycopg2-binary** (v2.9.9) - Adaptador PostgreSQL para Python
-  - Conexões eficientes com o banco
-  - Suporte a transações
-
-- **Pydantic** (v2.5.0) - Validação de dados usando type hints
-  - Validação automática de tipos
-  - Schemas para request/response
-  - Serialização JSON automática
-
-- **Python 3.8+** - Linguagem de programação
-  - Type hints
-  - Async/await para operações assíncronas
-
-### Frontend
-
-- **HTML5** - Estrutura semântica da aplicação web
-- **CSS3** - Estilização moderna com gradientes e flexbox
-- **JavaScript (ES6+)** - Lógica da aplicação
-  - Fetch API para requisições HTTP
-  - Módulos ES6 para organização
-  - Manipulação do DOM
-  - Async/await para requisições assíncronas
-
-### Ferramentas de Desenvolvimento
-
-- **python-dotenv** - Gerenciamento de variáveis de ambiente
-- **passlib[bcrypt]** - Hash de senhas (preparado para produção)
-- **python-jose** - JWT tokens (preparado para autenticação)
+### Principais Recursos:
+- ✅ **CRUD de Produtos** - Criar, ler, atualizar e deletar produtos
+- ✅ **Movimentações de Estoque** - Registrar entradas e saídas com histórico completo
+- ✅ **Alertas de Estoque Baixo** - Avisos quando quantidade mínima é atingida
+- ✅ **Resumo Financeiro** - Total de itens e valor total em estoque
+- ✅ **Histórico de Movimentações** - Rastreamento completo com datas
+- ✅ **Interface Responsiva** - Funciona em desktop e mobile
+- ✅ **API REST Completa** - Integração fácil com outros sistemas
 
 ---
 
-## 📦 Pré-requisitos
+## 🏗️ Arquitetura do Projeto
 
-### 1. Python 3.8 ou Superior
-
-**Windows:**
-- Baixe em: https://www.python.org/downloads/
-- Durante a instalação, marque "Add Python to PATH"
-- Verifique a instalação:
-```bash
-python --version
+```
+Gerenciador-Estoque/
+├── backend/                    # FastAPI REST API
+│   ├── app/
+│   │   ├── main.py            # Rotas principais (Products, Movements)
+│   │   ├── models.py          # Modelos SQLModel (Product, Movement)
+│   │   ├── database.py        # Configuração SQLite e sessões
+│   │   └── __pycache__/       # Cache Python (ignorado)
+│   ├── tests/
+│   │   ├── conftest.py        # Configuração pytest
+│   │   ├── test_products.py   # Testes CRUD de produtos
+│   │   └── test_movements.py  # Testes de movimentações
+│   ├── requirements.txt        # Dependências Python
+│   ├── run.py                 # Script para iniciar servidor
+│   └── database.db            # Banco SQLite (gerado automaticamente)
+│
+├── frontend/                   # React + Vite SPA
+│   ├── src/
+│   │   ├── api.js             # Cliente HTTP para API
+│   │   ├── App.jsx            # Componente raiz
+│   │   ├── main.jsx           # Entrada React
+│   │   ├── styles.css         # Estilos globais
+│   │   └── components/
+│   │       ├── ProductList.jsx
+│   │       ├── MovementsCard.jsx
+│   │       ├── Summary.jsx
+│   │       ├── ProductForm.jsx
+│   │       ├── MovementForm.jsx
+│   │       ├── SalesForm.jsx
+│   │       └── modals/        # Modal dialogs
+│   ├── package.json
+│   ├── vite.config.js
+│   └── index.html
+│
+├── .github/workflows/
+│   └── ci.yml                 # Pipeline CI/CD GitHub Actions
+│
+├── .gitignore
+└── README.md                  # Este arquivo
 ```
 
-**Linux (Ubuntu/Debian):**
+---
+
+## ⚙️ Pré-requisitos
+
+- **Python 3.10+** (testado em 3.10 e 3.11)
+- **pip** (gerenciador de pacotes Python)
+- **Node.js 16+** (LTS recomendado)
+- **npm** (vem com Node.js)
+- **Git** (para controle de versão)
+
+### Verificar instalação:
 ```bash
-sudo apt update
-sudo apt install python3 python3-pip
-python3 --version
-```
-
-**macOS:**
-```bash
-brew install python3
-python3 --version
-```
-
-### 2. PostgreSQL 12 ou Superior
-
-**Windows:**
-- Baixe em: https://www.postgresql.org/download/windows/
-- Durante a instalação, defina uma senha para o usuário `postgres`
-- O serviço será iniciado automaticamente
-
-**Linux (Ubuntu/Debian):**
-```bash
-sudo apt update
-sudo apt install postgresql postgresql-contrib
-sudo systemctl start postgresql
-sudo systemctl enable postgresql
-```
-
-**macOS:**
-```bash
-brew install postgresql
-brew services start postgresql
-```
-
-**Verificar instalação:**
-```bash
-psql --version
-```
-
-### 3. pip (Gerenciador de Pacotes Python)
-
-Geralmente vem instalado com Python. Verifique:
-```bash
+python --version      # Python 3.10+
 pip --version
-# ou
-pip3 --version
-```
-
-Se não estiver instalado:
-```bash
-python -m ensurepip --upgrade
-```
-
-### 4. Navegador Web Moderno
-
-- Google Chrome (recomendado)
-- Mozilla Firefox
-- Microsoft Edge
-- Safari
-
----
-
-## 🚀 Instalação
-
-### Passo 1: Clonar/Obter o Projeto
-
-```bash
-# Se estiver usando Git
-git clone <url-do-repositorio>
-cd Pinheiro-Arena
-
-# Ou extraia o arquivo ZIP na pasta desejada
-```
-
-### Passo 2: Criar Ambiente Virtual (Recomendado)
-
-**Windows:**
-```bash
-python -m venv venv
-venv\Scripts\activate
-```
-
-**Linux/macOS:**
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-Você verá `(venv)` no início do prompt quando estiver ativo.
-
-### Passo 3: Instalar Dependências do Backend
-
-```bash
-pip install -r backend/requirements.txt
-```
-
-Isso instalará todas as dependências necessárias:
-- FastAPI
-- Uvicorn
-- psycopg2-binary
-- Pydantic
-- E outras...
-
-### Passo 4: Configurar Banco de Dados PostgreSQL
-
-#### 4.1. Criar o Banco de Dados
-
-Abra o terminal e conecte-se ao PostgreSQL:
-
-**Windows (PSQL):**
-```bash
-psql -U postgres
-```
-
-**Linux/macOS:**
-```bash
-sudo -u postgres psql
-```
-
-Execute os seguintes comandos SQL:
-```sql
-CREATE DATABASE arena_pinheiro;
-\q
-```
-
-#### 4.2. Criar as Tabelas
-
-Execute o script SQL fornecido:
-
-**Windows:**
-```bash
-psql -U postgres -d arena_pinheiro -f backend\Arena_Pinheiro.sql
-```
-
-**Linux/macOS:**
-```bash
-psql -U postgres -d arena_pinheiro -f backend/Arena_Pinheiro.sql
-```
-
-Você será solicitado a inserir a senha do PostgreSQL. Se tudo estiver correto, verá a mensagem `BEGIN` e `END` indicando que o script foi executado.
-
----
-
-## ⚙️ Configuração
-
-### Configurar Variáveis de Ambiente
-
-Crie um arquivo `.env` na **raiz do projeto** com o seguinte conteúdo:
-
-```env
-# Configuração do Banco de Dados PostgreSQL
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=arena_pinheiro
-DB_USER=postgres
-DB_PASSWORD=sua_senha_aqui
-```
-
-**Importante:**
-- Substitua `sua_senha_aqui` pela senha do seu PostgreSQL
-- Se o PostgreSQL estiver em outro servidor, altere `DB_HOST`
-- Se usar outra porta, altere `DB_PORT`
-- Se criar outro usuário, altere `DB_USER`
-
-**Exemplo de .env:**
-```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=arena_pinheiro
-DB_USER=postgres
-DB_PASSWORD=minhasenha123
+node --version        # Node 16+
+npm --version
+git --version
 ```
 
 ---
 
-## 🎯 Como Executar
+## 🚀 Instalação e Setup
 
-### Executando o Backend (API)
-
-#### Opção 1: Usando uvicorn diretamente (Recomendado)
-
-Da **raiz do projeto**:
+### 1. Clonar o repositório
 ```bash
-uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
+git clone https://github.com/seu-usuario/Gerenciador-Estoque.git
+cd Gerenciador-Estoque
 ```
 
-**Parâmetros explicados:**
-- `--reload`: Recarrega automaticamente quando há mudanças no código
-- `--host 0.0.0.0`: Permite acesso de qualquer IP (importante para desenvolvimento)
-- `--port 8000`: Porta onde a API ficará disponível
+### 2. Setup do Backend
 
-#### Opção 2: Usando o script run.py como módulo
+#### Windows (PowerShell)
+```powershell
+cd backend
 
-Da **raiz do projeto**:
-```bash
-python -m backend.run
+# Criar ambiente virtual
+python -m venv .venv
+
+# Ativar ambiente virtual
+.\.venv\Scripts\Activate.ps1
+
+# Se houver erro de execução, use:
+# powershell -ExecutionPolicy Bypass -File .\.venv\Scripts\Activate.ps1
+
+# Instalar dependências
+pip install -r requirements.txt
 ```
 
-#### Opção 3: Executando de dentro da pasta backend
-
+#### macOS / Linux (Bash)
 ```bash
 cd backend
+
+# Criar ambiente virtual
+python3 -m venv .venv
+
+# Ativar ambiente virtual
+source .venv/bin/activate
+
+# Instalar dependências
+pip install -r requirements.txt
+```
+
+### 3. Setup do Frontend
+
+```bash
+cd frontend
+
+# Instalar dependências
+npm install
+
+# (Opcional) Adicionar dependências específicas se necessário
+# npm install axios
+```
+
+---
+
+## ▶️ Como Executar
+
+### Opção 1: Backend e Frontend Separados
+
+#### Terminal 1 - Backend
+```bash
+cd backend
+
+# Windows
+.\.venv\Scripts\Activate.ps1
+python run.py
+
+# macOS/Linux
+source .venv/bin/activate
 python run.py
 ```
 
-#### Verificar se está funcionando
-
-Após executar qualquer um dos comandos acima, você verá algo como:
-
+Saída esperada:
 ```
-INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process
-INFO:     Started server process
-INFO:     Waiting for application startup.
-Conexão com banco de dados estabelecida!
-INFO:     Application startup complete.
+App: http://localhost:8000
+Docs: http://localhost:8000/docs
 ```
 
-**Testar a API:**
-
-1. Abra o navegador e acesse: http://localhost:8000
-   - Deve mostrar: `{"message":"API Arena Pinheiro","version":"1.0.0","docs":"/docs"}`
-
-2. Acesse a documentação interativa: http://localhost:8000/docs
-   - Interface Swagger para testar os endpoints
-
-3. Verifique a saúde da API: http://localhost:8000/health
-   - Deve mostrar: `{"status":"healthy","database":"connected"}`
-
-### Executando o Frontend
-
-#### Opção 1: Servidor HTTP Python (Recomendado)
-
-**Terminal 1 - Backend (já deve estar rodando):**
-```bash
-uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
-```
-
-**Terminal 2 - Frontend:**
-
-Da **raiz do projeto**:
+#### Terminal 2 - Frontend
 ```bash
 cd frontend
-python -m http.server 8080
+npm run dev
 ```
 
-Ou da pasta frontend:
+Saída esperada:
+```
+Local:   http://localhost:5173/
+```
+
+Acesse: **http://localhost:5173/**
+
+---
+
+## 📡 API REST Endpoints
+
+### Base URL: `http://localhost:8000`
+
+### 🛍️ Produtos (`/products`)
+
+| Método | Endpoint | Descrição | Status |
+|--------|----------|-----------|--------|
+| `GET` | `/products` | Listar todos os produtos | 200 |
+| `POST` | `/products` | Criar novo produto | 201 |
+| `GET` | `/products/{id}` | Obter produto específico | 200 |
+| `PUT` | `/products/{id}` | Atualizar produto | 200 |
+| `DELETE` | `/products/{id}` | Deletar produto | 204 |
+
+#### Exemplo - Criar Produto:
 ```bash
-# Windows
+curl -X POST http://localhost:8000/products \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Notebook",
+    "description": "Laptop 15 polegadas",
+    "price": 2999.99,
+    "quantity": 5,
+    "min_quantity": 1
+  }'
+```
+
+**Resposta (201):**
+```json
+{
+  "id": 1,
+  "name": "Notebook",
+  "description": "Laptop 15 polegadas",
+  "price": 2999.99,
+  "quantity": 5,
+  "min_quantity": 1
+}
+```
+
+---
+
+### 📦 Movimentações (`/movements`)
+
+| Método | Endpoint | Descrição | Status |
+|--------|----------|-----------|--------|
+| `GET` | `/movements` | Listar movimentações (desc. por data) | 200 |
+| `POST` | `/movements` | Criar movimentação (entrada/saída) | 201 |
+
+#### Exemplo - Registrar Entrada:
+```bash
+curl -X POST http://localhost:8000/movements \
+  -H "Content-Type: application/json" \
+  -d '{
+    "product_id": 1,
+    "type": "entrada",
+    "quantity": 3,
+    "note": "Reabastecimento - Fornecedor X"
+  }'
+```
+
+**Resposta (201):**
+```json
+{
+  "id": 1,
+  "product_id": 1,
+  "type": "entrada",
+  "quantity": 3,
+  "note": "Reabastecimento - Fornecedor X",
+  "timestamp": "2026-01-17T10:30:00"
+}
+```
+
+### Tipos de Movimentação:
+- `"entrada"` - Aumenta a quantidade
+- `"saida"` - Diminui a quantidade
+
+---
+
+## 🧪 Testes Automatizados
+
+Os testes garantem que a API funciona conforme especificado.
+
+### Executar Testes
+
+```bash
+cd backend
+
+# Todos os testes
+python -m pytest -v
+
+# Testes específicos
+python -m pytest tests/test_products.py -v
+python -m pytest tests/test_movements.py -v
+
+# Com cobertura de código
+python -m pytest --cov=app --cov-report=html
+```
+
+### Suites de Teste
+
+#### `test_products.py` (5 testes)
+- ✅ `test_create_and_get_product` - Criar e recuperar produto
+- ✅ `test_update_and_delete_product` - Atualizar e deletar
+- ✅ `test_list_products` - Listar produtos
+- ✅ `test_get_product_not_found` - Erro 404
+
+#### `test_movements.py` (5 testes)
+- ✅ `test_create_movement_entrada_increases_quantity` - Entrada aumenta qtd
+- ✅ `test_create_movement_saida_decreases_quantity` - Saída diminui qtd
+- ✅ `test_create_movement_cannot_remove_more_than_available` - Validação de estoque
+- ✅ `test_create_movement_invalid_type_or_product` - Validação de tipo
+- ✅ `test_list_movements` - Listar movimentações
+
+**Total: 10 testes** cobrindo todos os endpoints principais.
+
+### O que é Testado:
+- ✓ Criação e validação de produtos
+- ✓ CRUD completo (Create, Read, Update, Delete)
+- ✓ Movimentações de estoque (entrada/saída)
+- ✓ Validações de negócio (não permitir saída maior que estoque)
+- ✓ Tratamento de erros (404, 400)
+- ✓ Integridade de dados no banco
+
+---
+
+## 🔄 Pipeline CI/CD
+
+A pipeline GitHub Actions automatiza testes e build a cada commit.
+
+### O que faz a Pipeline:
+
+```mermaid
+[Push/PR] 
+    ↓
+[Backend Tests (3.10 & 3.11)]
+    ↓
+[Frontend Build]
+    ↓
+[Summary - Sucesso/Falha]
+```
+
+### Configuração (`.github/workflows/ci.yml`)
+
+1. **Backend Tests (backend-tests)**
+   - Roda em Python 3.10 e 3.11
+   - Executa: `pytest -v`
+   - Gera relatório de cobertura
+   - Cache de dependências pip
+
+2. **Frontend Build (frontend-build)**
+   - Roda após backend passar
+   - Executa: `npm run build`
+   - Cache de dependências npm
+
+3. **Summary**
+   - Verifica se tudo passou
+   - Retorna status geral da pipeline
+
+### Triggers:
+- ✅ Push em `main`, `master`, `develop`
+- ✅ Pull Requests em `main`, `master`, `develop`
+
+### Status da Pipeline:
+Veja o status em: **Aba "Actions"** do repositório GitHub
+
+---
+
+## 📁 Estrutura de Arquivos
+
+### Backend
+
+**`app/models.py`** - Modelos de Dados
+```python
+class Product(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    description: Optional[str] = None
+    price: float = 0.0
+    quantity: int = 0
+    min_quantity: int = 0
+
+class Movement(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    product_id: int = Field(foreign_key="product.id")
+    type: str  # 'entrada' ou 'saida'
+    quantity: int
+    note: Optional[str] = None
+    timestamp: datetime
+```
+
+**`app/main.py`** - API Endpoints
+- Rotas em `/products` (CRUD)
+- Rotas em `/movements` (entrada/saída)
+- Middleware CORS habilitado
+- Suporte a SQLite
+
+**`app/database.py`** - Configuração do Banco
+- Conexão SQLite
+- Session management
+- Criação automática de tabelas
+
+**`requirements.txt`** - Dependências
+```
+fastapi          # Framework web
+uvicorn          # Servidor ASGI
+sqlmodel         # ORM (SQL + Pydantic)
+python-multipart # Upload de arquivos
+python-dotenv    # Variáveis de ambiente
+pytest           # Framework de testes
+httpx            # Cliente HTTP para testes
+```
+
+### Frontend
+
+**`src/api.js`** - Cliente HTTP
+- Funções para CRUD de produtos
+- Funções para movimentações
+- Integração com backend
+
+**`src/components/`** - Componentes React
+- `ProductList.jsx` - Grade/tabela de produtos
+- `MovementsCard.jsx` - Card com últimas movimentações
+- `Summary.jsx` - Resumo (total itens, valor)
+- `ProductForm.jsx` - Formulário CRUD
+- `MovementForm.jsx` - Formulário de movimentações
+- Modals para dialogs
+
+---
+
+## ✨ Funcionalidades Principais
+
+### 1️⃣ Gestão de Produtos
+- Criar, editar e deletar produtos
+- Campos: Nome, Descrição, Preço, Quantidade, Quantidade Mínima
+- Validação de dados em tempo real
+
+### 2️⃣ Movimentações de Estoque
+- Registrar **entradas** (reabastecimento)
+- Registrar **saídas** (vendas, devolução)
+- Histórico completo com datas
+- Modal para visualizar detalhes
+
+### 3️⃣ Alertas de Estoque Baixo
+- Avisos quando qtd < mínima
+- Ação rápida para adicionar estoque
+- Painel destacado
+
+### 4️⃣ Resumo Financeiro
+- Total de itens em estoque
+- Valor total em estoque
+- Atualização em tempo real
+
+### 5️⃣ Interface Intuitiva
+- Design limpo e moderno
+- Responsivo (mobile/desktop)
+- Validações cliente-servidor
+- Feedback de erros claro
+
+---
+
+## 🔧 Variáveis de Ambiente
+
+### Backend (`backend/.env`)
+```
+DATABASE_URL=sqlite:///./database.db
+HOST=0.0.0.0
+PORT=8000
+```
+
+### Frontend (`frontend/.env`)
+```
+VITE_API_URL=http://localhost:8000
+```
+
+---
+
+## 📚 Documentação Interativa da API
+
+Após iniciar o backend, acesse:
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+
+---
+
+## 🤝 Contribuindo
+
+1. Fork o repositório
+2. Crie uma branch para sua feature (`git checkout -b feature/minha-feature`)
+3. Commit suas mudanças (`git commit -m 'Adiciona minha feature'`)
+4. Push para a branch (`git push origin feature/minha-feature`)
+5. Abra um Pull Request
+
+---
+
+## 📝 Licença
+
+Este projeto está sob licença MIT. Veja o arquivo LICENSE para detalhes.
+
+---
+
+## 🆘 Troubleshooting
+
+### Backend não conecta ao banco
+```bash
+# Deletar banco corrompido (data será perdida)
+rm database.db
+python run.py
+```
+
+### Porta 8000 já está em uso
+```bash
+# Mudar porta
+PORT=8001 python run.py
+```
+
+### Node modules corrompido
+```bash
 cd frontend
-python -m http.server 8080
+rm -rf node_modules package-lock.json
+npm install
+```
 
-# Linux/macOS
+### Testes falhando
+```bash
+cd backend
+# Reinstalar dependências
+pip install -r requirements.txt --force-reinstall
+python -m pytest -v
+```
+
+---
+
+## 📞 Suporte
+
+Para dúvidas ou bugs, abra uma issue no GitHub.
+
+**Última atualização:** 17 de Janeiro de 2026
+
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python run.py
+
+# Em outro terminal, Frontend
 cd frontend
-python3 -m http.server 8080
+npm install
+npm run dev
 ```
 
-Acesse: **http://localhost:8080/frontend.html**
-
-#### Opção 2: Abrir diretamente no navegador
-
-**Nota:** Algumas funcionalidades podem não funcionar devido a políticas CORS.
-
-1. Abra o arquivo `frontend/frontend.html` diretamente no navegador
-2. Na seção "Configuração da API", configure: `http://localhost:8000`
-3. Clique em "Testar Conexão"
-4. Se aparecer "✓ Conectado", está tudo funcionando!
-
-#### Opção 3: Usando Live Server (VS Code)
-
-Se usar VS Code:
-1. Instale a extensão "Live Server"
-2. Clique com botão direito em `frontend/frontend.html`
-3. Selecione "Open with Live Server"
+Abra o frontend em: `http://localhost:5173` (por padrão) e a API em `http://localhost:8000`.
 
 ---
 
-## 📁 Estrutura do Projeto
-
-```
-Pinheiro-Arena/
-│
-├── backend/                          # Código do Backend
-│   ├── __init__.py
-│   ├── main.py                       # Aplicação principal FastAPI
-│   ├── config.py                     # Configurações centralizadas
-│   ├── database.py                   # Classe de conexão com PostgreSQL
-│   ├── run.py                        # Script para executar a API
-│   ├── Arena_Pinheiro.sql            # Script SQL para criar o banco
-│   ├── requirements.txt              # Dependências Python
-│   │
-│   ├── routers/                      # Rotas da API (Módulos separados)
-│   │   ├── __init__.py
-│   │   ├── usuarios.py               # CRUD de Usuários
-│   │   ├── clientes.py               # CRUD de Clientes
-│   │   ├── campos.py                 # CRUD de Campos
-│   │   ├── reservas.py               # CRUD de Reservas
-│   │   ├── produtos.py               # CRUD de Produtos
-│   │   ├── estoque.py                # CRUD de Estoque e Movimentações
-│   │   ├── mesas.py                  # CRUD de Mesas
-│   │   ├── comandas.py               # CRUD de Comandas e Itens
-│   │   ├── compras.py                # CRUD de Compras e Itens
-│   │   └── pagamentos.py             # CRUD de Pagamentos
-│   │
-│   └── schemas/                      # Modelos Pydantic (Módulos separados)
-│       ├── __init__.py
-│       ├── usuarios.py
-│       ├── clientes.py
-│       ├── campos.py
-│       ├── reservas.py
-│       ├── produtos.py
-│       ├── estoque.py
-│       ├── mesas.py
-│       ├── comandas.py
-│       ├── compras.py
-│       └── pagamentos.py
-│
-├── frontend/                         # Código do Frontend
-│   ├── frontend.html                 # Interface web completa (HTML inline)
-│   ├── css/
-│   │   └── styles.css                # Estilos CSS (preparado para uso futuro)
-│   └── js/
-│       ├── api.js                    # Configuração e utilitários da API
-│       └── utils.js                  # Funções utilitárias (UI, mensagens)
-│
-├── .env                              # Variáveis de ambiente (criar este arquivo)
-├── .gitignore                        # Arquivos ignorados pelo Git
-└── README.md                         # Este arquivo
-```
+## 🖥️ Backend (FastAPI)
+- Iniciar (desenvolvimento): `python run.py` — o script mostra os links da app e da documentação (Swagger: `/docs`).
+- Banco padrão: `backend/database.db` (SQLite).
+- Migração do campo `min_quantity`: o backend tenta adicionar automaticamente essa coluna em bases antigas; em ambiente de desenvolvimento, apagar `backend/database.db` recria o schema caso necessário.
+- Checagem rápida de dependências Python: `python check_prereqs.py` (dentro de `backend/`).
 
 ---
 
-## 📚 Documentação da API
-
-Quando o backend estiver rodando, acesse:
-
-- **Swagger UI (Interativo):** http://localhost:8000/docs
-  - Interface visual para testar todos os endpoints
-  - Pode fazer requisições diretamente pelo navegador
-
-- **ReDoc (Documentação):** http://localhost:8000/redoc
-  - Documentação formatada e legível
-
-### Principais Endpoints
-
-#### Autenticação e Usuários
-- `POST /api/usuarios/` - Criar usuário
-- `POST /api/usuarios/login` - Fazer login
-- `GET /api/usuarios/` - Listar todos os usuários
-- `GET /api/usuarios/{id}` - Obter usuário por ID
-- `PUT /api/usuarios/{id}` - Atualizar usuário
-- `DELETE /api/usuarios/{id}` - Deletar usuário
-
-#### Gerenciamento de Dados
-- **Clientes:** `/api/clientes/` (CRUD completo)
-- **Campos:** `/api/campos/` (CRUD completo)
-- **Reservas:** `/api/reservas/` (CRUD + listar por cliente)
-- **Produtos:** `/api/produtos/` (CRUD completo)
-- **Estoque:** `/api/estoque/` (CRUD + movimentações)
-- **Mesas:** `/api/mesas/` (CRUD completo)
-- **Comandas:** `/api/comandas/` (CRUD + itens)
-- **Compras:** `/api/compras/` (CRUD + itens)
-- **Pagamentos:** `/api/pagamentos/` (CRUD + vínculos)
+## 🌐 Frontend (Vite + React)
+- Inicie em `frontend/` com `npm install` e `npm run dev`.
+- Configure a URL da API criando `frontend/.env` a partir de `frontend/.env.example` (variável `VITE_API_URL`).
 
 ---
 
-## ✨ Funcionalidades
-
-### Backend (API REST)
-
-✅ **CRUD Completo** para todas as entidades
-✅ **Validação automática** de dados com Pydantic
-✅ **Documentação automática** (Swagger/OpenAPI)
-✅ **CORS configurado** para permitir requisições do frontend
-✅ **Validação de foreign keys** antes de inserções
-✅ **Geração automática de IDs** sequenciais
-✅ **Mapeamento automático** PascalCase ↔ snake_case
-✅ **Tratamento de erros** padronizado
-✅ **Health check** endpoint para monitoramento
-
-### Frontend (Interface Web)
-
-✅ **Interface moderna e responsiva**
-✅ **Gerenciamento completo de:**
-  - Usuários (criação, edição, exclusão, login)
-  - Clientes (cadastro e gerenciamento)
-  - Campos esportivos (disponibilidade e status)
-  - Reservas (agendamento e acompanhamento)
-  - Produtos (cadastro com preços e validade)
-  - Estoque (controle de quantidade e movimentações)
-  - Mesas (status e ocupação)
-  - Comandas (itens, valores, status)
-  - Compras (registro e histórico)
-  - Pagamentos (formas e vínculos)
-
-✅ **Teste de conexão** com a API
-✅ **Feedback visual** (mensagens de sucesso/erro)
-✅ **Formulários validados** no frontend
-✅ **Tabelas dinâmicas** com dados da API
+## ⚠️ Observações importantes
+- CORS já está configurado para o frontend `http://localhost:5173`.
+- Se algo não funcionar (ex.: migrations), tente apagar `backend/database.db` e reiniciar a API (apenas em desenvolvimento).
 
 ---
 
-## 🐛 Solução de Problemas
-
-### ❌ Erro: "ModuleNotFoundError: No module named 'backend'"
-
-**Causa:** Executando o comando do lugar errado.
-
-**Solução:**
-```bash
-# Certifique-se de estar na RAIZ do projeto
-cd C:\Users\joaog\OneDrive\Documentos\Pinheiro-Arena
-python -m backend.run
-```
-
-### ❌ Erro: "connection to server at localhost failed"
-
-**Causa:** PostgreSQL não está rodando.
-
-**Solução:**
-```bash
-# Windows
-net start postgresql-x64-XX  # Substitua XX pela versão
-
-# Linux
-sudo systemctl start postgresql
-
-# macOS
-brew services start postgresql
-
-# Verificar se está rodando
-psql -U postgres -c "SELECT version();"
-```
-
-### ❌ Erro: "password authentication failed"
-
-**Causa:** Senha incorreta no arquivo `.env`.
-
-**Solução:**
-1. Verifique a senha do PostgreSQL
-2. Teste a conexão manualmente:
-```bash
-psql -U postgres -d arena_pinheiro
-```
-3. Atualize o arquivo `.env` com a senha correta
-
-### ❌ Erro: "database 'arena_pinheiro' does not exist"
-
-**Causa:** Banco de dados não foi criado.
-
-**Solução:**
-```sql
--- Conecte-se ao PostgreSQL
-psql -U postgres
-
--- Execute:
-CREATE DATABASE arena_pinheiro;
-\q
-
--- Depois execute o script SQL
-psql -U postgres -d arena_pinheiro -f backend/Arena_Pinheiro.sql
-```
-
-### ❌ Erro: "relation 'Usuario' does not exist"
-
-**Causa:** Tabelas não foram criadas.
-
-**Solução:**
-```bash
-# Execute novamente o script SQL
-psql -U postgres -d arena_pinheiro -f backend/Arena_Pinheiro.sql
-```
-
-### ❌ Frontend não consegue conectar à API
-
-**Causa:** CORS ou API não está rodando.
-
-**Solução:**
-1. Verifique se o backend está rodando: http://localhost:8000/health
-2. Verifique a URL no frontend (deve ser: `http://localhost:8000`)
-3. Use um servidor HTTP para o frontend (não abra o arquivo diretamente)
-4. Verifique o console do navegador (F12) para erros de CORS
-
-### ❌ Erro: "pip: command not found"
-
-**Causa:** pip não está instalado ou não está no PATH.
-
-**Solução:**
-```bash
-# Windows
-python -m ensurepip --upgrade
-
-# Linux
-sudo apt install python3-pip
-
-# macOS
-python3 -m ensurepip --upgrade
-```
-
-### ❌ Porta 8000 já está em uso
-
-**Causa:** Outra aplicação está usando a porta 8000.
-
-**Solução:**
-```bash
-# Mude a porta no comando:
-uvicorn backend.main:app --reload --host 0.0.0.0 --port 8001
-
-# E atualize a URL no frontend para: http://localhost:8001
-```
+## 🛠️ Scripts úteis
+- `scripts/check_prereqs.ps1` — checa Python / Node / npm (Windows PowerShell).
+- `scripts/check_prereqs.sh` — checa Python / Node / npm (macOS / Linux).
+- `backend/check_prereqs.py` — checa se os pacotes Python essenciais estão instalados.
+- `frontend/.env.example` — exemplo de configuração para o frontend.
 
 ---
 
-## 📝 Notas Importantes
-
-### Segurança
-⚠️ Esta é uma implementação básica para desenvolvimento. Para produção:
-- Implemente autenticação JWT completa
-- Use bcrypt para hash de senhas
-- Adicione validação de permissões por tipo de usuário
-- Implemente rate limiting
-- Use HTTPS
-- Adicione logs de auditoria
-- Implemente validação de entrada mais robusta
-
-### Banco de Dados
-- Os nomes das colunas no banco estão em **PascalCase** (ex: `Id_Usuario`)
-- Os schemas Pydantic usam **snake_case** (ex: `id_usuario`)
-- O mapeamento automático é feito na classe `Database`
-- IDs são gerados automaticamente usando `MAX()+1`
-
-### Desenvolvimento
-- Use o modo `--reload` apenas em desenvolvimento
-- Não commite o arquivo `.env` (já está no .gitignore)
-- Mantenha as dependências atualizadas: `pip list --outdated`
+## ✅ Próximos passos (opções)
+- Adicionar Docker + docker-compose (execução em qualquer OS) 🐳
+- Adicionar testes automatizados (pytest) ✅
+- Configurar CI/CD (GitHub Actions) 🔁
 
 ---
 
-## 🎓 Comandos Rápidos
+## 🧪 Testes
 
-```bash
-# Instalar dependências
+### Backend
+- Implementado com `pytest` + `TestClient` (FastAPI). Rode em `backend/` com:
+
+```powershell
 pip install -r backend/requirements.txt
-
-# Executar backend (da raiz)
-uvicorn backend.main:app --reload
-
-# Executar frontend (da pasta frontend)
-cd frontend
-python -m http.server 8080
-
-# Criar banco de dados
-psql -U postgres
-CREATE DATABASE arena_pinheiro;
-
-# Criar tabelas
-psql -U postgres -d arena_pinheiro -f backend/Arena_Pinheiro.sql
-
-# Verificar conexão com banco
-psql -U postgres -d arena_pinheiro -c "SELECT COUNT(*) FROM Usuario;"
+python -m pytest -q
 ```
 
----
-
-## 📄 Licença
-
-Este projeto foi desenvolvido para a Arena Pinheiro.
-
----
-
-## 👨‍💻 Desenvolvido com
-
-- **FastAPI** - Framework web moderno
-- **PostgreSQL** - Banco de dados relacional
-- **Python 3.8+** - Linguagem backend
-- **HTML5/CSS3/JavaScript** - Frontend web
-- **Pydantic** - Validação de dados
-- **Uvicorn** - Servidor ASGI
+**Testes implementados**:
+- `test_create_and_get_product` — cria e recupera produto; valida campos e `GET /products/{id}`.
+- `test_update_and_delete_product` — atualiza produto com `PUT` e verifica `DELETE` remove o registro.
+- `test_list_products` — valida `GET /products`.
+- `test_get_product_not_found` — checa 404 para produto inexistente.
+- `test_create_movement_entrada_increases_quantity` — movimento `entrada` aumenta quantidade.
+- `test_create_movement_saida_decreases_quantity` — movimento `saida` diminui quantidade.
+- `test_create_movement_cannot_remove_more_than_available` — garante erro ao retirar mais que disponível.
+- `test_create_movement_invalid_type_or_product` — valida tipos inválidos e produto inexistente.
+- `test_list_movements` — valida `GET /movements` retorna movimentos.
 
 ---
 
-**Para mais informações ou dúvidas, consulte a documentação interativa em http://localhost:8000/docs quando a API estiver rodando.**
+## 🔁 Integração Contínua (GitHub Actions)
+
+Criei um workflow para CI em `.github/workflows/ci.yml` que:
+
+- Executa os testes do backend (`pytest`) em Python 3.11.
+- Faz build do frontend (Node 18) para validar que o frontend compila sem erros.
+
+A pipeline é disparada em `push` e `pull_request` nas branches `main`/`master`. Se quiser, posso ajustar a workflow para rodar checks adicionais (linters, coverage, etc.).
+
