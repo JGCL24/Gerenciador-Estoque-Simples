@@ -20,6 +20,7 @@ export default function ProductForm({ initial, onSubmit, onCancel }){
 
   const submit = async (e)=>{
     e.preventDefault()
+    if (Number(form.price) < 0) return
     // normalize number fields
     const payload = {...form, price: Number(form.price || 0), quantity: Number(form.quantity || 0), min_quantity: Number(form.min_quantity || 0)}
     try{
@@ -40,11 +41,11 @@ export default function ProductForm({ initial, onSubmit, onCancel }){
       </label>
 
       <label>Descrição (opcional)
-        <input name="description" placeholder="Breve descrição (opcional)" value={form.description} onChange={change} />
+        <input name="description" placeholder="Escrever descrição" value={form.description} onChange={change} />
       </label>
 
       <label>Preço
-        <input type="number" step="0.01" name="price" value={form.price} onChange={change} required aria-required="true" />
+        <input type="number" step="0.01" min={0} name="price" value={form.price} onChange={change} required aria-required="true" />
       </label>
 
       <label>Quantidade
@@ -53,7 +54,7 @@ export default function ProductForm({ initial, onSubmit, onCancel }){
 
       <label>Quantidade mínima (alerta)
         <input disabled={submitting} type="number" name="min_quantity" value={form.min_quantity} onChange={change} min={0} aria-describedby="min-help" />
-        <small id="min-help" className="muted">Se 0, não há alerta; defina um valor para ser avisado quando houver estoque baixo.</small>
+        <small id="min-help" className="muted">*Defina um valor para ser avisado quando houver estoque baixo. Se for 0, não haverá alerta.</small>
       </label>
 
       <div style={{display:'flex', gap:8}}>

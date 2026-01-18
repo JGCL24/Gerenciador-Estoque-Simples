@@ -33,12 +33,7 @@ export default function SalesForm({ products, initialProduct, onSubmit, onCancel
     e.preventDefault()
     for(const l of lines){
       if (!l.product_id){
-        setError('Selecione um Produto')
-        return
-      }
-      const q = Number(l.quantity || 0)
-      if (!q || q <= 0){
-        setError('Informe uma quantidade maior que 0')
+        setError('Selecione um produto')
         return
       }
     }
