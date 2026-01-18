@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react'
 
 export default function SalesForm({ products, initialProduct, onSubmit, onCancel }){
-  const [lines, setLines] = useState([{ product_id: initialProduct?.id ?? (products[0]?.id ?? null), quantity: 1 }])
+  const [lines, setLines] = useState([{ product_id: '', quantity: 1 }])
+  const [error, setError] = useState('')
   const ref = useRef(null)
 
   useEffect(()=>{
-    setLines([{ product_id: initialProduct?.id ?? (products[0]?.id ?? null), quantity: 1 }])
+    // If an initial product exists, preselect it; otherwise keep placeholder
+    setLines([{ product_id: initialProduct?.id ?? '', quantity: 1 }])
+    setError('')
     setTimeout(()=>{ try{ ref.current && ref.current.focus() }catch(e){} }, 0)
   }, [initialProduct, products])
 
@@ -13,9 +16,10 @@ export default function SalesForm({ products, initialProduct, onSubmit, onCancel
     const next = lines.slice()
     next[idx] = { ...next[idx], ...patch }
     setLines(next)
+    if (patch.product_id) setError('')
   }
 
-  const addLine = ()=> setLines([...lines, { product_id: products[0]?.id ?? null, quantity: 1 }])
+  const addLine = ()=> setLines([...lines, { product_id: '', quantity: 1 }])
   const removeLine = (idx)=> setLines(lines.filter((_,i)=>i!==idx))
 
   const computeLineTotal = (line)=>{
@@ -27,14 +31,20 @@ export default function SalesForm({ products, initialProduct, onSubmit, onCancel
 
   const submit = (e)=>{
     e.preventDefault()
-    // validate
     for(const l of lines){
-      if (!l.product_id) return alert('Selecione um produto em todas as linhas')
+      if (!l.product_id){
+        setError('Selecione um Produto')
+        return
+      }
       const q = Number(l.quantity || 0)
-      if (!q || q <= 0) return alert('Informe uma quantidade maior que 0 em todas as linhas')
+      if (!q || q <= 0){
+        setError('Informe uma quantidade maior que 0')
+        return
+      }
     }
 
-    // prepare items
+    setError('')
+
     const items = lines.map(l => {
       const prod = products.find(x => String(x.id) === String(l.product_id))
       return { product_id: Number(l.product_id), quantity: Number(l.quantity), unit_price: Number(prod?.price ?? 0), subtotal: computeLineTotal(l) }
@@ -50,6 +60,7 @@ export default function SalesForm({ products, initialProduct, onSubmit, onCancel
           <div style={{flex:1}}>
             <label>Produto
               <select ref={idx===0?ref:null} value={line.product_id ?? ''} onChange={(e)=>updateLine(idx, { product_id: e.target.value })}>
+                <option value="" disabled>Selecionar Produto...</option>
                 {products.map(p => <option key={p.id} value={p.id}>{p.name} • Qtd: {p.quantity}</option>)}
               </select>
             </label>
@@ -76,6 +87,8 @@ export default function SalesForm({ products, initialProduct, onSubmit, onCancel
       <div style={{display:'flex', gap:8, marginBottom:10}}>
         <button type="button" className="secondary" onClick={addLine}>Adicionar item</button>
       </div>
+
+      {error && <div style={{color:'#E3242B', fontWeight:600, marginBottom:10}}>{error}</div>}
 
       <div style={{marginTop:6, marginBottom:12}}>Total da venda: <strong>R$ {grandTotal.toFixed(2)}</strong></div>
 
