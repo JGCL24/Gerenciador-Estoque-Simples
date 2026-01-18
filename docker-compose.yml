@@ -21,6 +21,7 @@ services:
       - db
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/estoque
+      - ALLOW_ALL_ORIGINS=${ALLOW_ALL_ORIGINS:-false}
 
   frontend:
     build: 

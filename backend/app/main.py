@@ -11,7 +11,16 @@ app = FastAPI(title="Gerenciador de Estoque API")
 produtos_router = APIRouter(prefix="/products", tags=["Products"])
 movimentacoes_router = APIRouter(prefix="/movements", tags=["Movements"])
 
-origins = ["http://localhost:5173", "http://localhost:3000", "http://localhost"]
+# CORS - Permitir acesso de qualquer origem (necessário para ngrok e deploy)
+import os
+ALLOW_ALL_ORIGINS = os.getenv("ALLOW_ALL_ORIGINS", "false").lower() == "true"
+
+if ALLOW_ALL_ORIGINS:
+    # Modo produção/ngrok - Permite qualquer origem
+    origins = ["*"]
+else:
+    # Modo desenvolvimento - Apenas localhost
+    origins = ["http://localhost:5173", "http://localhost:3000", "http://localhost"]
 
 app.add_middleware(
     CORSMiddleware,
