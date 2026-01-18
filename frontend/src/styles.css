@@ -163,7 +163,7 @@ button:hover, .btn:hover{ transform:translateY(-1px) }
 .movement-item{ display:flex; justify-content:space-between; align-items:center; padding:12px; border-radius:12px; background:#fff; border:1px solid #eef2f7; transition: background .12s ease, transform .06s ease, border .12s ease }
 .movement-item.clickable:hover{ background:#f0f5ff; transform:translateX(2px); cursor:pointer; border-color:#cbd5e1 }
 .movement-left{ display:flex; flex-direction:column; gap:4px }
-.movement-type{ font-weight:700; font-size:12px; padding:4px 10px; border-radius:999px; display:inline-block }
+.movement-type{ font-weight:700; font-size:12px; padding:4px 10px; border-radius:999px; display:inline-flex; align-items:center; justify-content:center; min-width:70px; text-align:center }
 .movement-type.in{ background:#ecfdf5; color:#065f46 }
 .movement-type.out{ background:#fff1f2; color:#9f1239 }
 .movement-meta{ color:var(--muted); font-size:13px }

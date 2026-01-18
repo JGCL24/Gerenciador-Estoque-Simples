@@ -70,6 +70,8 @@ def listar_produtos(*, session=Depends(get_session)):
 @produtos_router.post("", response_model=Product, status_code=201)
 def criar_produto(*, product: ProductCreate, session=Depends(get_session)):
     """Cria um novo produto e registra automaticamente uma movimentação de entrada."""
+    if product.price < 0 or product.quantity < 0 or product.min_quantity < 0:
+        raise HTTPException(status_code=400, detail="Negative values are not allowed")
     # Cria o produto
     db_product = Product(**product.model_dump())
     session.add(db_product)
@@ -108,6 +110,8 @@ def atualizar_produto(*, product_id: int, product: ProductUpdate, session=Depend
     if not db_product:
         raise HTTPException(status_code=404, detail="Product not found")
     product_data = product.model_dump(exclude_unset=True)
+    if any(v is not None and v < 0 for v in (product_data.get("price"), product_data.get("quantity"), product_data.get("min_quantity"))):
+        raise HTTPException(status_code=400, detail="Negative values are not allowed")
     for key, value in product_data.items():
         setattr(db_product, key, value)
     session.add(db_product)

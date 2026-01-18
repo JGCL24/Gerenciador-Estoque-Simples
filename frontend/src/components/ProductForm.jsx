@@ -14,6 +14,7 @@ export default function ProductForm({ initial, onSubmit, onCancel }){
   }, [initial])
 
   const change = (e)=>{
+    if (e.target.type === 'number' && e.target.value !== '' && Number(e.target.value) < 0) return
     const value = e.target.type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value
     setForm({...form, [e.target.name]: value })
   }
@@ -49,7 +50,7 @@ export default function ProductForm({ initial, onSubmit, onCancel }){
       </label>
 
       <label>Quantidade
-        <input type="number" name="quantity" value={form.quantity} onChange={change} required aria-required="true" />
+        <input type="number" min={0} name="quantity" value={form.quantity} onChange={change} required aria-required="true" />
       </label>
 
       <label>Quantidade mínima (alerta)
